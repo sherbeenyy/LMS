@@ -162,7 +162,6 @@ router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
     });
   }
 });
-module.exports = router;
 
 // DELETE
 // books/:id
@@ -199,3 +198,5 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
+
+module.exports = router;
