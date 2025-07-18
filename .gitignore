@@ -1,5 +1,6 @@
 # Node modules (never commit these)
 node_modules/
+imgs/
 
 # Environment variables and secrets
 .env

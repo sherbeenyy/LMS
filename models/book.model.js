@@ -6,32 +6,31 @@ const bookSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     author: {
       type: String,
       required: true,
     },
-
     isbn: {
       type: String,
-      unique: true,
       required: true,
     },
-
-    availableCopies: {
+    price: {
       type: Number,
       required: true,
-      min: 0,
     },
-
-    timesBorrowed: {
+    copiesInStock: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    totalSold: {
       type: Number,
       default: 0,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-const Book = mongoose.model("Book", bookSchema);
-
-module.exports = Book;
+module.exports = mongoose.model("Book", bookSchema);

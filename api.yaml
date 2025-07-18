@@ -1,11 +1,121 @@
 openapi: 3.1.1
 info:
   title: Library Management System API
-  description: API for managing a library system will be changed to include books, authors, and users.
+  description: API for managing books in a library system.
   version: "1.0.0"
   contact:
-    email: "ahmedhesham11m@gmail.com"
+    email: ahmedhesham11m@gmail.com
 
 servers:
-  - url: http://localhost:8080/
-paths: {}
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Books
+    description: Operations related to books
+
+paths:
+  /book/add:
+    post:
+      summary: Add a new book to the library
+      tags:
+        - Books
+      requestBody:
+        description: Book details to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddBookRequest"
+            examples:
+              validRequest:
+                summary: A valid book input
+                value:
+                  title: "Clean Code"
+                  author: "Robert C. Martin"
+                  isbn: "9780132350884"
+                  availableCopies: 4
+      responses:
+        "201":
+          description: Book added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddBookSuccessResponse"
+        "400":
+          description: Validation error or book already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                duplicate:
+                  summary: Book already exists
+                  value:
+                    status: false
+                    message: "This book already exists."
+                validation:
+                  summary: Validation error (e.g., short title)
+                  value:
+                    status: false
+                    message: "Title is too short."
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                status: false
+                message: "Failed to add book: Database connection error"
+
+components:
+  schemas:
+    AddBookRequest:
+      type: object
+      required:
+        - title
+        - author
+        - isbn
+        - availableCopies
+      properties:
+        title:
+          type: string
+          minLength: 2
+          description: The title of the book (at least 2 characters)
+          example: "Clean Code"
+        author:
+          type: string
+          description: The author's full name
+          example: "Robert C. Martin"
+        isbn:
+          type: string
+          minLength: 13
+          maxLength: 13
+          description: A 13-character ISBN number
+          example: "9780132350884"
+        availableCopies:
+          type: integer
+          minimum: 0
+          description: Number of available copies (non-negative)
+          example: 5
+
+    AddBookSuccessResponse:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Clean Code added successfully !"
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "This book already exists."

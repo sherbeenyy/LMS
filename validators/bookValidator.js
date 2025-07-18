@@ -5,10 +5,15 @@ const addBookValidator = [
     .notEmpty()
     .withMessage("Title is required.")
     .bail() //this function stops the validation chain if the previous validation failed
-    .isLength({ min: 2 })
+    .isLength({ min: 3 })
     .withMessage("Title is too short."),
 
-  body("author").notEmpty().withMessage("Author is required."),
+  body("author")
+    .notEmpty()
+    .withMessage("Author is required.")
+    .bail()
+    .isLength({ min: 3 })
+    .withMessage("Author is too short."),
 
   body("isbn")
     .notEmpty()
@@ -17,12 +22,19 @@ const addBookValidator = [
     .isLength({ min: 13, max: 13 })
     .withMessage("ISBN must be 13 characters."),
 
-  body("availableCopies")
+  body("copiesInStock")
     .notEmpty()
-    .withMessage("Available copies is required.")
+    .withMessage("Copies in stock is required.")
     .bail()
-    .isInt({ min: 0 })
-    .withMessage("Available copies must be a non-negative number."),
+    .isInt({ min: 1 })
+    .withMessage("Minimum numbers of copies in stock should be 1."),
+
+  body("price")
+    .notEmpty()
+    .withMessage("Price is required.")
+    .bail()
+    .isFloat({ min: 0 })
+    .withMessage("Price must be a non-negative number."),
 ];
 
 module.exports = { addBookValidator };
