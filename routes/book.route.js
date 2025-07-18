@@ -1,5 +1,6 @@
 // routes/book.routes.js
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 const Book = require("../models/book.model");
 
@@ -67,8 +68,6 @@ router.get("/all", async (req, res) => {
 //books/:id
 //Fetches a book by its ID
 //Returns the book object
-const mongoose = require("mongoose");
-
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -100,4 +99,103 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//PATCH
+//books/:id
+//Updates a book by its ID
+//Returns the updated book object with message
+router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
+  const { id } = req.params;
+  const { title, author, isbn, copiesInStock, price } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({
+      status: false,
+      message: "Book not found.",
+    });
+  }
+
+  try {
+    //fetching the original book and comapre the stock to prevent admin from reducting the stock
+    const existingBook = await Book.findById(id);
+    if (!existingBook) {
+      return res.status(404).json({
+        status: false,
+        message: "Book not found.",
+      });
+    }
+    if (Number(copiesInStock) < Number(existingBook.copiesInStock)) {
+      return res.status(400).json({
+        status: false,
+        message:
+          "You cannot reduce the number of copies in stock below the existing value.",
+      });
+    }
+
+    // Prevent duplicate ISBNs (exclude this book itself)
+    if (isbn && isbn !== existingBook.isbn) {
+      const existingWithSameISBN = await Book.findOne({ isbn });
+      if (existingWithSameISBN && existingWithSameISBN._id.toString() !== id) {
+        return res.status(400).json({
+          status: false,
+          message: "Another book with this ISBN already exists.",
+        });
+      }
+    }
+
+    // Update the book
+    const book = await Book.findByIdAndUpdate(
+      id,
+      { title, author, isbn, copiesInStock, price },
+      { new: true }
+    );
+
+    res.status(200).json({
+      status: true,
+      message: "Book updated successfully.",
+      book,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: false,
+      message: "Failed to update book: " + err.message,
+    });
+  }
+});
 module.exports = router;
+
+// DELETE
+// books/:id
+// Deletes a book by its ID
+// Returns a success message
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({
+      status: false,
+      message: "Book not found.",
+    });
+  }
+
+  try {
+    const book = await Book.findByIdAndDelete(id);
+    if (!book) {
+      return res.status(404).json({
+        status: false,
+        message: "Book not found.",
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      message: "Book deleted successfully.",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: false,
+      message: "Failed to delete book: " + err.message,
+    });
+  }
+});
