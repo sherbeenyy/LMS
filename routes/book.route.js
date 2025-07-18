@@ -1,6 +1,6 @@
 // routes/book.routes.js
 const express = require("express");
-const mongoose = require("mongoose");
+const { checkID } = require("../validators/reqValidation");
 const router = express.Router();
 const Book = require("../models/book.model");
 
@@ -72,11 +72,9 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   // if the object ID is not valid, return 404 not the actual error for security
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({
-      status: false,
-      message: "Book not found.",
-    });
+  const idCheck = checkID(id);
+  if (idCheck) {
+    return res.status(404).json(idCheck);
   }
 
   try {
@@ -107,11 +105,9 @@ router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
   const { id } = req.params;
   const { title, author, isbn, copiesInStock, price } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({
-      status: false,
-      message: "Book not found.",
-    });
+  const idCheck = checkID(id);
+  if (idCheck) {
+    return res.status(404).json(idCheck);
   }
 
   try {
@@ -170,11 +166,9 @@ router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({
-      status: false,
-      message: "Book not found.",
-    });
+  const idCheck = checkID(id);
+  if (idCheck) {
+    return res.status(404).json(idCheck);
   }
 
   try {
