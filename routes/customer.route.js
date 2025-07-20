@@ -139,11 +139,12 @@ router.patch(
 
       // Build only the fields that need updating
       const updateFields = {};
-      if (name !== undefined && name !== existingCustomer.name)
-        updateFields.name = name;
-      if (phone !== undefined && phone !== existingCustomer.phone)
-        updateFields.phone = phone;
-
+      if (name !== undefined && name.trim() !== existingCustomer.name) {
+        updateFields.name = name.trim();
+      }
+      if (phone !== undefined && phone.trim() !== existingCustomer.phone) {
+        updateFields.phone = phone.trim();
+      }
       // Update only the changed fields
       const updatedCustomer = await Customer.findByIdAndUpdate(
         id,
