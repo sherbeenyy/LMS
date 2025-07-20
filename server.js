@@ -6,6 +6,7 @@ const YAML = require("yamljs");
 const swaggerDoc = YAML.load("./api.yaml");
 const connectDB = require("./config/db");
 const bookRoutes = require("./routes/book.route");
+const customerRoutes = require("./routes/customer.route");
 dotenv.config();
 
 const app = express();
@@ -16,7 +17,8 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc)); // Serve Swagger UI
 
-app.use("/book", bookRoutes);
+app.use("/books", bookRoutes);
+app.use("/customers", customerRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on http://localhost:${process.env.PORT}`);

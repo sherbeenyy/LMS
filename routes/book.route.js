@@ -4,7 +4,10 @@ const { checkID } = require("../validators/reqValidation");
 const router = express.Router();
 const Book = require("../models/book.model");
 
-const { addBookValidator } = require("../validators/bookValidator");
+const {
+  addBookValidator,
+  editBookValidator,
+} = require("../validators/bookValidator");
 const validateRequest = require("../middlewares/validateRequests");
 
 //POST
@@ -72,7 +75,7 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   // if the object ID is not valid, return 404 not the actual error for security
-  const idCheck = checkID(id);
+  const idCheck = checkID(id, "Book not found.");
   if (idCheck) {
     return res.status(404).json(idCheck);
   }
@@ -101,17 +104,16 @@ router.get("/:id", async (req, res) => {
 //books/:id
 //Updates a book by its ID
 //Returns the updated book object with message
-router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
+router.patch("/:id", editBookValidator, validateRequest, async (req, res) => {
   const { id } = req.params;
   const { title, author, isbn, copiesInStock, price } = req.body;
 
-  const idCheck = checkID(id);
+  const idCheck = checkID(id, "Book not found.");
   if (idCheck) {
     return res.status(404).json(idCheck);
   }
 
   try {
-    //fetching the original book and comapre the stock to prevent admin from reducting the stock
     const existingBook = await Book.findById(id);
     if (!existingBook) {
       return res.status(404).json({
@@ -119,7 +121,12 @@ router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
         message: "Book not found.",
       });
     }
-    if (Number(copiesInStock) < Number(existingBook.copiesInStock)) {
+
+    // Prevent reducing the stock
+    if (
+      copiesInStock !== undefined &&
+      Number(copiesInStock) < Number(existingBook.copiesInStock)
+    ) {
       return res.status(400).json({
         status: false,
         message:
@@ -127,7 +134,7 @@ router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
       });
     }
 
-    // Prevent duplicate ISBNs (exclude this book itself)
+    // Check for duplicate ISBN
     if (isbn && isbn !== existingBook.isbn) {
       const existingWithSameISBN = await Book.findOne({ isbn });
       if (existingWithSameISBN && existingWithSameISBN._id.toString() !== id) {
@@ -138,12 +145,33 @@ router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
       }
     }
 
-    // Update the book
-    const book = await Book.findByIdAndUpdate(
-      id,
-      { title, author, isbn, copiesInStock, price },
-      { new: true }
-    );
+    // Check for actual changes
+    const updateFields = {};
+    if (title !== undefined && title !== existingBook.title)
+      updateFields.title = title;
+    if (author !== undefined && author !== existingBook.author)
+      updateFields.author = author;
+    if (isbn !== undefined && isbn !== existingBook.isbn)
+      updateFields.isbn = isbn;
+    if (
+      copiesInStock !== undefined &&
+      copiesInStock !== existingBook.copiesInStock
+    )
+      updateFields.copiesInStock = copiesInStock;
+    if (price !== undefined && price !== existingBook.price)
+      updateFields.price = price;
+
+    // If no actual updates, respond accordingly
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(200).json({
+        status: true,
+        message: "Nothing changed. Book was not updated.",
+      });
+    }
+
+    const book = await Book.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
 
     res.status(200).json({
       status: true,
@@ -166,7 +194,7 @@ router.patch("/:id", addBookValidator, validateRequest, async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  const idCheck = checkID(id);
+  const idCheck = checkID(id, "Book not found.");
   if (idCheck) {
     return res.status(404).json(idCheck);
   }

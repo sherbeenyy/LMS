@@ -37,4 +37,30 @@ const addBookValidator = [
     .withMessage("Price must be a non-negative number."),
 ];
 
-module.exports = { addBookValidator };
+const editBookValidator = [
+  body("title")
+    .optional()
+    .isLength({ min: 3 })
+    .withMessage("Title is too short."),
+
+  body("author")
+    .optional()
+    .isLength({ min: 3 })
+    .withMessage("Author is too short."),
+
+  body("isbn")
+    .optional()
+    .isLength({ min: 13, max: 13 })
+    .withMessage("ISBN must be 13 characters."),
+
+  body("copiesInStock")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Minimum numbers of copies in stock should be 1."),
+
+  body("price")
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage("Price must be a non-negative number."),
+];
+module.exports = { addBookValidator, editBookValidator };
