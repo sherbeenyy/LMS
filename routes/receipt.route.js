@@ -109,4 +109,28 @@ router.post(
   }
 );
 
+// GET
+// /receipts/bestsellers
+// Returns the top 5 best-selling books
+router.get("/bestsellers", async (req, res) => {
+  try {
+    const topBooks = await Book.find({})
+      .sort({ totalSold: -1 })
+      .limit(5)
+      .select("title author totalSold");
+
+    res.status(200).json({
+      status: true,
+      message: "Top 5 best-selling books.",
+      books: topBooks,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: false,
+      message: "Server error while fetching bestsellers.",
+    });
+  }
+});
+
 module.exports = router;
