@@ -7,11 +7,10 @@ const receiptSchema = new mongoose.Schema(
       ref: "Customer",
       required: true,
     },
-    bookId: [
+    books: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Book",
-        required: true,
+        bookId: { type: mongoose.Schema.Types.ObjectId, ref: "Book" },
+        quantity: { type: Number, required: true },
       },
     ],
     totalPrice: {
