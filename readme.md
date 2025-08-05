@@ -23,21 +23,9 @@ The project uses **layered architecture** to ensure scalability, testability, an
 Client → Middleware → Validation → Route Handler → Database → Response
 ```
 
-### Project Structure
+### Database Structure
 
-```
-LMS/
-├── routes/             # Route files for books, receipts, customers, auth
-├── models/             # Mongoose schemas
-├── models/             # Mongoose schemas
-├── middlewares/        # Authentication, request validation error handling
-├── validators/         # Joi validators for request bodies
-├── config/             # MongoDB connection setup
-├── __test__/           # All tests using Jest & Supertest
-├── api.yaml            # Swagger/OpenAPI documentation
-├── server.js           # Entry point of the app
-└── .env                # Environment variables
-```
+![Database Schema](./imgs/db_strcuture.png)
 
 ---
 
@@ -50,7 +38,9 @@ All sensitive routes are protected using **JWT-based middleware**.
 Example:
 
 ```
+
 Authorization: Bearer <your_token>
+
 ```
 
 - If the token is valid → access granted
@@ -79,7 +69,9 @@ All routes are documented using **Swagger (OpenAPI v3)** and grouped by category
 After starting the server, go to:
 
 ```
+
 http://localhost:{port}/api-docs
+
 ```
 
 You’ll be able to explore all APIs, test them live, and view detailed schemas.
@@ -125,8 +117,8 @@ npx jest __test__/book.test.js
 ### 2. Clone & Install
 
 ```bash
-git clone https://github.com/your-username/lms-api.git
-cd lms-api
+git clone https://github.com/sherbeenyy/LMS.git
+cd LMS
 npm install
 ```
 
@@ -149,27 +141,27 @@ npm run dev
 The API will be available at:
 
 ```
-http://localhost:{port}
+http://localhost:3000
 ```
 
 And Swagger docs at:
 
 ```
-http://localhost:{port}/api-docs
+http://localhost:3000/api-docs
 ```
 
 ---
 
 ## Core Features
 
-| Feature            | Description                                          |
-| ------------------ | ---------------------------------------------------- |
-| 🧾 Create Receipts | Track books sold to customers                        |
-| 📈 Best Sellers    | Analyze and view top 5 best-selling books            |
-| 📚 Book Inventory  | Add, edit, delete, or fetch books                    |
-| 👥 Customers       | Manage customer data with duplicate-checking logic   |
-| 🔐 Secure Access   | JWT-based protected routes for all resources         |
-| 🧪 Tests           | All routes are covered with professional test suites |
+| Feature         | Description                                          |
+| --------------- | ---------------------------------------------------- |
+| Create Receipts | Track books sold to customers                        |
+| Best Sellers    | Analyze and view top 5 best-selling books            |
+| Book Inventory  | Add, edit, delete, or fetch books                    |
+| Customers       | Manage customer data with duplicate-checking logic   |
+| Secure Access   | JWT-based protected routes for all resources         |
+| Tests           | All routes are covered with professional test suites |
 
 ---
 
@@ -187,11 +179,9 @@ http://localhost:{port}/api-docs
 
 ## Future Enhancements (Ideas)
 
-- 📊 Dashboard with visual stats
-- 👨‍🏫 User roles (admin, staff)
-- 📅 Borrowing system with due dates
-- 💬 Email/SMS notifications
-- 🧠 AI recommendations for popular books
+- User roles (admin, staff)
+- Borrowing system with due dates
+- Email/SMS notifications
 
 ---
 
