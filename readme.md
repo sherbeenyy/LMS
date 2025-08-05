@@ -55,7 +55,7 @@ The database schema is built on MongoDB and models the following relationships:
 
 ### Schema Diagram
 
-![Database Design](./imgs/db_structure.png)
+![Database Design](./imgs/db_strcuture.png)
 
 ---
 
