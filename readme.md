@@ -131,9 +131,9 @@ npx jest __test__/receipt.test.js
 ```
 
 > **Note:**  
-> Make sure your test database (`MONGO_URI_test`) is **up and running**, and that it is correctly referenced in both:
+> Make sure your test database (`MONGO_URI_TEST`) is **up and running**, and that it is correctly referenced in both:
 >
-> - Your `.env` file (as `MONGO_URI_test`)
+> - Your `.env` file (as `MONGO_URI_TEST`)
 > - The Jest test setup or individual test files
 >
 > This ensures the tests connect properly to the correct database and avoids connection or duplication errors when running multiple test suites.
@@ -168,7 +168,7 @@ npm install
 ```env
 PORT=3000
 MONGODB_URI=mongodb://localhost:27017/lms
-MONGODB_URI_Test=mongodb://localhost:27017/lms_test
+MONGODB_URI_TEST=mongodb://localhost:27017/lms_test
 JWT_SECRET=your_jwt_secret_key
 ```
 
