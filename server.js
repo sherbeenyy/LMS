@@ -17,19 +17,24 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc)); // Serve Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-//public routes
+// public routes
 app.use("/auth", authRoutes);
 
-//secure every thing below this
+// secure everything after this line
 app.use(authMiddleware);
 
-//secured routes
+// secured routes
 app.use("/books", bookRoutes);
 app.use("/customers", customerRoutes);
 app.use("/receipts", receiptRoutes);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on http://localhost:${process.env.PORT}`);
-});
+// only start the server if not in test environment
+if (process.env.NODE_ENV !== "test") {
+  app.listen(process.env.PORT, () => {
+    console.log(`Server is running on http://localhost:${process.env.PORT}`);
+  });
+}
+
+module.exports = app;
