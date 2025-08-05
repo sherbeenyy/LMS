@@ -1,6 +1,5 @@
 # Node modules 
 node_modules/
-imgs/
 problems.txt
 # Environment variables and secrets
 .env
