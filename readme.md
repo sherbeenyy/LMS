@@ -2,155 +2,102 @@
 
 ## Overview
 
-The **Library Management System (LMS)** API is a backend application built with **Node.js**, **Express**, and **MongoDB**. It allows libraries and bookshops to manage:
+The Library Management System (LMS) API is a robust backend application designed to streamline and manage library operations such as:
 
-- Books (inventory, sales, prices)
-- Customers
-- Sales receipts
-- Identify top 5 best-selling books
+- Book inventory and sales tracking
+- Customer management with duplicate detection
+- Sales receipts generation
+- Best-selling book analytics
 
-It follows a secure, layered architecture and includes **Swagger API documentation**, **JWT authentication**, and **professional test coverage using Jest & Supertest**.
-
----
-
-## Architecture & Request Lifecycle
-
-The project uses **layered architecture** to ensure scalability, testability, and modularity.
-
-### Request Flow
-
-```
-Client → Middleware → Validation → Route Handler → Database → Response
-```
-
-### Architecture Desgin
-
-![Project desgin](./imgs/project_structure.png)
+Built with Node.js, Express, and MongoDB, this API adopts modern backend development practices including JWT-based authentication, request validation via Joi, layered architecture for scalability, and full testing coverage using Jest and Supertest. It is ideal for libraries, bookshops, or any institution managing book-related transactions.
 
 ---
 
-### Database Desgin
+## System Architecture
 
-![databse desgin](./imgs/db_strcuture.png)
+The LMS backend is built using a layered architecture, which separates concerns across middleware, validation, controllers, and models for scalability and maintainability.
+
+### Request Lifecycle
+
+```
+Client → Middleware (JWT + Validation) → Controller (Route Handler) → Mongoose (Database) → Response
+```
+
+### Project Structure
+
+```
+LMS/
+├── config/              # MongoDB connection logic
+├── controllers/         # Route handler logic
+├── middlewares/         # JWT auth and request validation
+├── models/              # Mongoose schemas for each resource
+├── routes/              # API endpoint definitions
+├── validators/          # Joi schemas for request validation
+├── __test__/            # Jest + Supertest tests
+├── api.yaml             # Swagger API documentation
+├── server.js            # Application entry point
+└── .env                 # Environment configuration
+```
+
+### Architecture Diagram
+
+![Project Design](./imgs/project_structure.png)
 
 ---
 
-## Authentication & Middleware
+## Database Design
 
-### JWT Middleware
+The database schema is built on MongoDB and models the following relationships:
 
-All sensitive routes are protected using **JWT-based middleware**.
+- `books`: Tracks title, author, pricing, stock, and sales data.
+- `customers`: Stores customer name and contact details with duplication control.
+- `receipts`: Logs sales, links to customers and book quantities.
 
-Example:
+### Schema Diagram
+
+![Database Design](./imgs/db_structure.png)
+
+---
+
+## Authentication and Middleware
+
+### JWT Authentication
+
+All protected routes require a valid JWT token in the request header:
 
 ```
-
 Authorization: Bearer <your_token>
-
 ```
 
-- If the token is valid → access granted
-- If invalid or missing → returns `401 Unauthorized` or `403 Forbidden`
+The middleware verifies token validity. If the token is missing or invalid, the server returns a 401 or 403 response. Upon validation, the request proceeds to the corresponding route handler.
 
 ### Request Validation
 
-All route inputs are validated using **Joi** schemas (e.g., `bookValidator.js`, `receiptValidator.js`) before hitting the business logic.
+Joi is used to define validation schemas for all route inputs. Validation is applied before business logic execution. Errors are caught early and returned in a consistent format.
 
-If the validation fails, a helpful message is returned early.
+Examples of validation files include:
+
+- `bookValidator.js`
+- `customerValidator.js`
+- `receiptValidator.js`
 
 ---
 
 ## API Documentation
 
-All routes are documented using **Swagger (OpenAPI v3)** and grouped by category:
+The LMS API is documented using Swagger (OpenAPI v3), providing a visual and interactive interface to test and explore API endpoints.
 
-- `/books` → Book management
-- `/customers` → Customer operations
-- `/receipts` → Receipt management
-- `/auth` → User login/register
-- `/receipts/bestsellers` → Bestsellers report
+### Endpoint Groups
+
+- `/auth` – User registration and login
+- `/books` – Book inventory and management
+- `/customers` – Customer record operations
+- `/receipts` – Sales receipts creation and updates
+- `/receipts/bestsellers` – Analytics on top-selling books
 
 ### Access Swagger UI
 
-After starting the server, go to:
-
-```
-
-http://localhost:{port}/api-docs
-
-```
-
-You’ll be able to explore all APIs, test them live, and view detailed schemas.
-
----
-
-## Testing
-
-All endpoints are covered with **Jest** and **Supertest**.
-
-### Coverage Includes:
-
-- Auth (register/login with hashed passwords)
-- CRUD operations for:
-  - Books
-  - Customers
-  - Receipts
-- Token-based access control
-- Edge cases (e.g., duplicate entries, insufficient stock, invalid IDs)
-
-### Run Tests
-
-```bash
-npm test
-```
-
-Or run an individual file:
-
-```bash
-npx jest __test__/book.test.js
-```
-
----
-
-## Local Setup
-
-### 1. Prerequisites
-
-- Node.js (v18+ recommended)
-- MongoDB (local or Atlas)
-- npm or yarn
-
-### 2. Clone & Install
-
-```bash
-git clone https://github.com/sherbeenyy/LMS.git
-cd LMS
-npm install
-```
-
-### 3. Environment Variables
-
-Create a `.env` file in the root directory with:
-
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/lms
-JWT_SECRET=your_jwt_secret_key
-```
-
-### 4. Run the Server
-
-```bash
-npm run dev
-```
-
-The API will be available at:
-
-```
-http://localhost:3000
-```
-
-And Swagger docs at:
+Once the server is running, the documentation is available at:
 
 ```
 http://localhost:3000/api-docs
@@ -158,45 +105,115 @@ http://localhost:3000/api-docs
 
 ---
 
+## Testing
+
+All routes are tested using Jest and Supertest, ensuring correctness, security, and resilience under different conditions.
+
+### Test Coverage Includes
+
+- Authentication with hashed passwords
+- Full CRUD for books, customers, and receipts
+- Validation and edge cases (e.g., insufficient stock, duplicate data)
+- Access control via JWT middleware
+
+### Run Tests
+
+To run all tests:
+
+```bash
+npm test
+```
+
+To run a specific test file:
+
+```bash
+npx jest __test__/receipt.test.js
+```
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- MongoDB instance (local or remote)
+- npm (or yarn)
+
+### Installation Steps
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/sherbeenyy/LMS.git
+cd LMS
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env` file in the root directory and add the following:
+
+```env
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017/lms
+JWT_SECRET=your_jwt_secret_key
+```
+
+4. Start the development server:
+
+```bash
+npm run dev
+```
+
+- API Base URL: `http://localhost:3000`
+- Swagger Docs: `http://localhost:3000/api-docs`
+
+---
+
 ## Core Features
 
-| Feature         | Description                                          |
-| --------------- | ---------------------------------------------------- |
-| Create Receipts | Track books sold to customers                        |
-| Best Sellers    | Analyze and view top 5 best-selling books            |
-| Book Inventory  | Add, edit, delete, or fetch books                    |
-| Customers       | Manage customer data with duplicate-checking logic   |
-| Secure Access   | JWT-based protected routes for all resources         |
-| Tests           | All routes are covered with professional test suites |
+| Feature           | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| Book Management   | Add, update, delete, and retrieve book records           |
+| Customer Handling | Create and manage customer data with duplication control |
+| Receipt System    | Track customer purchases and book stock adjustments      |
+| Best Sellers      | Retrieve analytics on top 5 best-selling books           |
+| Secure Access     | JWT authentication for all protected routes              |
+| Full Testing      | Complete test coverage for all routes and edge cases     |
 
 ---
 
 ## Built With
 
-- **Node.js** – JavaScript runtime
-- **Express.js** – Web framework
-- **MongoDB + Mongoose** – NoSQL database & ODM
-- **Joi** – Input validation
-- **JWT** – Secure user sessions
-- **Swagger (YAML)** – API documentation
-- **Jest + Supertest** – Testing framework
+- Node.js – JavaScript runtime environment
+- Express.js – Web framework for Node.js
+- MongoDB & Mongoose – NoSQL database and ORM
+- Joi – Input validation library
+- JWT – JSON Web Token authentication
+- Swagger (YAML) – API documentation
+- Jest + Supertest – Testing frameworks
 
 ---
 
-## Future Enhancements (Ideas)
+## Future Enhancements
 
-- User roles (admin, staff)
-- Borrowing system with due dates
-- Email/SMS notifications
+- Role-based access control (admin, librarian, etc.)
+- Book borrowing and return system with due dates
+- Notification service (email or SMS)
+- Data export and report generation
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the MIT License.
 
 ---
 
 ## Author
 
-Made by **Ahmed Hesham Elsherbeeny**
+Developed by **Ahmed Hesham Elsherbeeny**
