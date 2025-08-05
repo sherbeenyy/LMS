@@ -110,6 +110,57 @@ router.post(
 );
 
 // GET
+// /receipts
+// Returns all receipts with customer and book details
+router.get("/all", async (req, res) => {
+  try {
+    const receipts = await Receipt.find()
+      .sort({ createdAt: -1 }) // Newest first
+      .populate("customerId", "name") // Only get customer name
+      .lean(); // Convert to plain JS objects for performance
+
+    const bookIds = receipts.flatMap((receipt) =>
+      receipt.books.map((item) => item.bookId)
+    );
+
+    // Fetch all referenced books once
+    const books = await Book.find({ _id: { $in: bookIds } }).lean();
+    const bookMap = {};
+    books.forEach((book) => {
+      bookMap[book._id.toString()] = book;
+    });
+
+    // Format receipts
+    const formattedReceipts = receipts.map((receipt) => ({
+      id: receipt._id,
+      customerName: receipt.customerId.name,
+      totalPrice: receipt.totalPrice,
+      bookItems: receipt.books.map((item) => {
+        const book = bookMap[item.bookId.toString()];
+        return {
+          bookId: item.bookId,
+          title: book?.title || "Book not found",
+          price: book?.price || 0,
+          quantity: item.quantity,
+        };
+      }),
+      createdAt: receipt.createdAt,
+    }));
+
+    res.status(200).json({
+      status: true,
+      receipts: formattedReceipts,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: false,
+      message: "Server error while fetching receipts.",
+    });
+  }
+});
+
+// GET
 // /receipts/bestsellers
 // Returns the top 5 best-selling books
 router.get("/bestsellers", async (req, res) => {
