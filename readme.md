@@ -9,7 +9,7 @@ The Library Management System (LMS) API is a robust backend application designed
 - Sales receipts generation
 - Best-selling book analytics
 
-Built with Node.js, Express, and MongoDB, this API adopts modern backend development practices including JWT-based authentication, request validation via Joi, layered architecture for scalability, and full testing coverage using Jest and Supertest. It is ideal for libraries, bookshops, or any institution managing book-related transactions.
+Built with Node.js, Express, and MongoDB, this API adopts modern backend development practices including JWT-based authentication, request validation via express-validator, layered architecture for scalability, and full testing coverage using Jest and Supertest. It is ideal for libraries, bookshops, or any institution managing book-related transactions.
 
 ---
 
@@ -32,7 +32,7 @@ LMS/
 ├── middlewares/         # JWT auth and request validation
 ├── models/              # Mongoose schemas for each resource
 ├── routes/              # API endpoint definitions
-├── validators/          # Joi schemas for request validation
+├── validators/          # express-validator for request validation
 ├── __test__/            # Jest + Supertest tests
 ├── api.yaml             # Swagger API documentation
 ├── server.js            # Application entry point
@@ -73,7 +73,7 @@ The middleware verifies token validity. If the token is missing or invalid, the 
 
 ### Request Validation
 
-Joi is used to define validation schemas for all route inputs. Validation is applied before business logic execution. Errors are caught early and returned in a consistent format.
+express-validator is used to define validation schemas for all route inputs. Validation is applied before business logic execution. Errors are caught early and returned in a consistent format.
 
 Examples of validation files include:
 
@@ -192,7 +192,7 @@ npm run dev
 - Node.js – JavaScript runtime environment
 - Express.js – Web framework for Node.js
 - MongoDB & Mongoose – NoSQL database and ORM
-- Joi – Input validation library
+- express-validator – Input validation library
 - JWT – JSON Web Token authentication
 - Swagger (YAML) – API documentation
 - Jest + Supertest – Testing frameworks
