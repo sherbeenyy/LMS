@@ -1,121 +1,386 @@
-openapi: 3.1.1
+openapi: 3.0.0
 info:
-  title: Library Management System API
-  description: API for managing books in a library system.
-  version: "1.0.0"
-  contact:
-    email: ahmedhesham11m@gmail.com
+  title: LMS API
+  version: 1.0.0
+  description: |
+    LMS API -- Library Management System
 
+    This API provides a simple yet powerful backend for managing a library’s books, customers, and sales receipts. The core purpose is to help library owners:
+
+    - Track sales through detailed receipts.
+    - Manage customer information efficiently.
+    - Maintain and update book inventory (including stock and sales count).
+    - Identify best-selling books based on real sales data.
+
+    The API supports full CRUD operations on books and customers, secure user authentication via JWT, and detailed endpoints to manage and analyze receipt data.
+
+    > Designed to power a minimal inventory and analytics dashboard for a library.
 servers:
   - url: http://localhost:8080
     description: Local development server
 
 tags:
+  - name: Auth
+    description: Authentication operations
   - name: Books
     description: Operations related to books
+  - name: Customers
+    description: Operations related to customers
+  - name: Receipts
+    description: Operations related to receipts
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Book:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        isbn:
+          type: string
+        price:
+          type: number
+        copiesInStock:
+          type: integer
+        totalSold:
+          type: integer
+
+    Customer:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+
+    Receipt:
+      type: object
+      properties:
+        _id:
+          type: string
+        customerName:
+          type: string
+        totalPrice:
+          type: number
+        bookItems:
+          type: array
+          items:
+            type: object
+            properties:
+              bookId:
+                type: string
+              title:
+                type: string
+              price:
+                type: number
+              quantity:
+                type: integer
 
 paths:
-  /book/add:
+  /auth/register:
     post:
-      summary: Add a new book to the library
       tags:
-        - Books
+        - Auth
+      summary: Register a new user
       requestBody:
-        description: Book details to be added
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AddBookRequest"
-            examples:
-              validRequest:
-                summary: A valid book input
-                value:
-                  title: "Clean Code"
-                  author: "Robert C. Martin"
-                  isbn: "9780132350884"
-                  availableCopies: 4
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
       responses:
         "201":
-          description: Book added successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AddBookSuccessResponse"
+          description: User registered
         "400":
-          description: Validation error or book already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                duplicate:
-                  summary: Book already exists
-                  value:
-                    status: false
-                    message: "This book already exists."
-                validation:
-                  summary: Validation error (e.g., short title)
-                  value:
-                    status: false
-                    message: "Title is too short."
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                status: false
-                message: "Failed to add book: Database connection error"
+          description: Validation error
 
-components:
-  schemas:
-    AddBookRequest:
-      type: object
-      required:
-        - title
-        - author
-        - isbn
-        - availableCopies
-      properties:
-        title:
-          type: string
-          minLength: 2
-          description: The title of the book (at least 2 characters)
-          example: "Clean Code"
-        author:
-          type: string
-          description: The author's full name
-          example: "Robert C. Martin"
-        isbn:
-          type: string
-          minLength: 13
-          maxLength: 13
-          description: A 13-character ISBN number
-          example: "9780132350884"
-        availableCopies:
-          type: integer
-          minimum: 0
-          description: Number of available copies (non-negative)
-          example: 5
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login and receive JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login success with token
+        "401":
+          description: Unauthorized
 
-    AddBookSuccessResponse:
-      type: object
-      properties:
-        status:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: "Clean Code added successfully !"
+  /books/add:
+    post:
+      tags:
+        - Books
+      summary: Add a new book
+      security:
+        - BearerAuth: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Book"
+      responses:
+        "201":
+          description: Book added
 
-    ErrorResponse:
-      type: object
-      properties:
-        status:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: "This book already exists."
+  /books/all:
+    get:
+      tags:
+        - Books
+      summary: Get all books
+      security:
+        - BearerAuth: {}
+      responses:
+        "200":
+          description: A list of books
+
+  /books/{id}:
+    get:
+      tags:
+        - Books
+      summary: Get book by ID
+      security:
+        - BearerAuth: {}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Book found
+
+    patch:
+      tags:
+        - Books
+      summary: Update book by ID
+      security:
+        - BearerAuth: {}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Book"
+      responses:
+        "200":
+          description: Book updated
+
+    delete:
+      tags:
+        - Books
+      summary: Delete book by ID
+      security:
+        - BearerAuth: {}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Book deleted
+
+  /customers/add:
+    post:
+      tags:
+        - Customers
+      summary: Add a new customer
+      security:
+        - BearerAuth: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        "201":
+          description: Customer added
+
+  /customers/all:
+    get:
+      tags:
+        - Customers
+      summary: Get all customers
+      security:
+        - BearerAuth: {}
+      responses:
+        "200":
+          description: List of customers
+
+  /customers/{id}:
+    get:
+      tags:
+        - Customers
+      summary: Get customer by ID
+      security:
+        - BearerAuth: {}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Customer found
+
+    patch:
+      tags:
+        - Customers
+      summary: Update customer by ID
+      security:
+        - BearerAuth: {}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        "200":
+          description: Customer updated
+
+    delete:
+      tags:
+        - Customers
+      summary: Delete customer by ID
+      security:
+        - BearerAuth: {}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Customer deleted
+
+  /receipts/add:
+    post:
+      tags:
+        - Receipts
+      summary: Create a new receipt
+      security:
+        - BearerAuth: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: string
+                books:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      bookId:
+                        type: string
+                      quantity:
+                        type: integer
+      responses:
+        "201":
+          description: Receipt created
+
+  /receipts/all:
+    get:
+      tags:
+        - Receipts
+      summary: Get all receipts
+      security:
+        - BearerAuth: {}
+      responses:
+        "200":
+          description: List of receipts
+
+  /receipts/{id}/edit:
+    put:
+      tags:
+        - Receipts
+      summary: Edit a receipt
+      security:
+        - BearerAuth: {}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: string
+                books:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      bookId:
+                        type: string
+                      quantity:
+                        type: integer
+      responses:
+        "200":
+          description: Receipt updated
+
+  /receipts/bestsellers:
+    get:
+      tags:
+        - Receipts
+      summary: Get top 5 best-selling books
+      security:
+        - BearerAuth: {}
+      responses:
+        "200":
+          description: Bestseller list
