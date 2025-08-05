@@ -22,10 +22,10 @@ beforeAll(async () => {
   await User.deleteMany({});
   await request(app)
     .post("/auth/register")
-    .send({ username: "testuser", password: "Test@1234" });
+    .send({ username: "bookuserTest", password: "bookuserTest" });
   const loginRes = await request(app)
     .post("/auth/login")
-    .send({ username: "testuser", password: "Test@1234" });
+    .send({ username: "bookuserTest", password: "bookuserTest" });
   token = loginRes.body.token;
 });
 

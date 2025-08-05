@@ -16,9 +16,12 @@ beforeAll(async () => {
 
   // Clean up and create user
   await User.deleteMany({});
-  await new User({ username: "testuser", password: "testpass123" }).save();
+  await new User({ username: "customerTest", password: "testpass123" }).save();
   // Login to get token
-  const res = await request(app).post("/auth/login").send(userCredentials);
+  const res = await request(app).post("/auth/login").send({
+    username: "customerTest",
+    password: "testpass123",
+  });
   token = res.body.token;
 });
 
