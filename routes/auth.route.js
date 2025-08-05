@@ -30,6 +30,7 @@ router.post("/register", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
   try {
+    console.log(JWT_SECRET);
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     if (!user)
@@ -48,7 +49,9 @@ router.post("/login", async (req, res) => {
     });
     res.json({ status: true, token });
   } catch (err) {
-    res.status(500).json({ status: false, message: "Server error" });
+    res
+      .status(500)
+      .json({ status: false, message: "Server error", error: err.message });
   }
 });
 

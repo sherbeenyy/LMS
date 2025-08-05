@@ -1,5 +1,5 @@
+require("dotenv").config();
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -10,7 +10,6 @@ const customerRoutes = require("./routes/customer.route");
 const receiptRoutes = require("./routes/receipt.route");
 const authRoutes = require("./routes/auth.route");
 const authMiddleware = require("./middlewares/auth");
-dotenv.config();
 
 const app = express();
 connectDB();
