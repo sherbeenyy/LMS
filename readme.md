@@ -4,10 +4,10 @@
 
 The **Library Management System (LMS)** API is a backend application built with **Node.js**, **Express**, and **MongoDB**. It allows libraries and bookshops to manage:
 
-- 📕 Books (inventory, sales, prices)
-- 👥 Customers
-- 🧾 Sales receipts
-- 📈 Identify top 5 best-selling books
+- Books (inventory, sales, prices)
+- Customers
+- Sales receipts
+- Identify top 5 best-selling books
 
 It follows a secure, layered architecture and includes **Swagger API documentation**, **JWT authentication**, and **professional test coverage using Jest & Supertest**.
 
@@ -23,9 +23,15 @@ The project uses **layered architecture** to ensure scalability, testability, an
 Client → Middleware → Validation → Route Handler → Database → Response
 ```
 
-### Database Structure
+### Architecture Desgin
 
-![Database Schema](./imgs/db_strcuture.png)
+![Project desgin](./imgs/project_structure.png)
+
+---
+
+### Database Desgin
+
+![databse desgin](./imgs/db_strcuture.png)
 
 ---
 
