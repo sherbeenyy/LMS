@@ -9,7 +9,7 @@ The Library Management System (LMS) API is a robust backend application designed
 - Sales receipts generation
 - Best-selling book analytics
 
-Built with Node.js, Express, and MongoDB, this API adopts modern backend development practices including JWT-based authentication, request validation via express-validator, layered architecture for scalability, and full testing coverage using Jest and Supertest. It is ideal for libraries, bookshops, or any institution managing book-related transactions.
+Built with Node.js, Express, and MongoDB, this API adopts modern backend development practices including JWT-based authentication, request validation via Joi, layered architecture for scalability, and full testing coverage using Jest and Supertest. It is ideal for libraries, bookshops, or any institution managing book-related transactions.
 
 ---
 
@@ -32,7 +32,7 @@ LMS/
 ├── middlewares/         # JWT auth and request validation
 ├── models/              # Mongoose schemas for each resource
 ├── routes/              # API endpoint definitions
-├── validators/          # express-validator for request validation
+├── validators/          # express-validator schemas for request validation
 ├── __test__/            # Jest + Supertest tests
 ├── api.yaml             # Swagger API documentation
 ├── server.js            # Application entry point
@@ -130,6 +130,14 @@ To run a specific test file:
 npx jest __test__/receipt.test.js
 ```
 
+> **Note:**  
+> Make sure your test database (`MONGO_URI_test`) is **up and running**, and that it is correctly referenced in both:
+>
+> - Your `.env` file (as `MONGO_URI_test`)
+> - The Jest test setup or individual test files
+>
+> This ensures the tests connect properly to the correct database and avoids connection or duplication errors when running multiple test suites.
+
 ---
 
 ## Local Setup
@@ -160,6 +168,7 @@ npm install
 ```env
 PORT=3000
 MONGODB_URI=mongodb://localhost:27017/lms
+MONGODB_URI_Test=mongodb://localhost:27017/lms_test
 JWT_SECRET=your_jwt_secret_key
 ```
 
@@ -210,7 +219,7 @@ npm run dev
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+This project is licensed under the MIT License.
 
 ---
 

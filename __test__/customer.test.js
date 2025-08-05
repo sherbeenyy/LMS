@@ -12,7 +12,7 @@ const userCredentials = {
 };
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI_TEST);
 
   // Clean up and create user
   await User.deleteMany({});

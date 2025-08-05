@@ -12,7 +12,7 @@ let bookId1, bookId2;
 let receiptId;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI_TEST);
 
   // Create user
   await User.deleteMany({});

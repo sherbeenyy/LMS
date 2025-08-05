@@ -24,7 +24,6 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    console.log(JWT_SECRET);
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     if (!user)
