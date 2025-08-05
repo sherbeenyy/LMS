@@ -160,6 +160,122 @@ router.get("/all", async (req, res) => {
   }
 });
 
+// PUT
+// /receipts/:id/edit
+// Edits an existing receipt, updates stock and totalSold correctly
+router.put(
+  "/:id",
+  createReceiptValidator,
+  validateRequest,
+  async (req, res) => {
+    try {
+      const receiptId = req.params.id;
+      const { customerId, books: newBookItems } = req.body;
+
+      const existingReceipt = await Receipt.findById(receiptId);
+      if (!existingReceipt) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Receipt not found." });
+      }
+
+      const customer = await Customer.findById(customerId);
+      if (!customer) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Customer not found." });
+      }
+
+      // Validate new book IDs
+      const newBookIds = newBookItems.map((item) => item.bookId);
+      const books = await Book.find({ _id: { $in: newBookIds } });
+      const foundIds = books.map((b) => b._id.toString());
+      const notFoundIds = newBookIds.filter((id) => !foundIds.includes(id));
+
+      if (notFoundIds.length > 0) {
+        return res.status(404).json({
+          status: false,
+          message: "Some book IDs were not found.",
+          notFoundIds,
+        });
+      }
+
+      const bookMap = {};
+      books.forEach((book) => {
+        bookMap[book._id.toString()] = book;
+      });
+
+      // Check stock and calculate total price
+      let totalPrice = 0;
+      for (const item of newBookItems) {
+        const book = bookMap[item.bookId];
+        const quantity = item.quantity;
+
+        if (book.copiesInStock < quantity) {
+          return res.status(400).json({
+            status: false,
+            message: `Not enough stock for book "${book.title}". Available: ${book.copiesInStock}, Requested: ${quantity}`,
+          });
+        }
+
+        totalPrice += book.price * quantity;
+      }
+
+      // revert old book stocks and totalSold
+      await Promise.all(
+        existingReceipt.books.map(async ({ bookId, quantity }) => {
+          await Book.findByIdAndUpdate(bookId, {
+            $inc: {
+              copiesInStock: quantity,
+              totalSold: -quantity,
+            },
+          });
+        })
+      );
+
+      //apply new stock changes
+      await Promise.all(
+        newBookItems.map(({ bookId, quantity }) =>
+          Book.findByIdAndUpdate(bookId, {
+            $inc: {
+              copiesInStock: -quantity,
+              totalSold: quantity,
+            },
+          })
+        )
+      );
+
+      //Save updated receipt
+      existingReceipt.customerId = customerId;
+      existingReceipt.books = newBookItems;
+      existingReceipt.totalPrice = totalPrice;
+      const updatedReceipt = await existingReceipt.save();
+
+      res.status(200).json({
+        status: true,
+        message: "Receipt updated successfully.",
+        receipt: {
+          id: updatedReceipt._id,
+          customerName: customer.name,
+          bookItems: newBookItems.map(({ bookId, quantity }) => ({
+            bookId,
+            quantity,
+            title: bookMap[bookId].title,
+            price: bookMap[bookId].price,
+          })),
+          totalPrice,
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        status: false,
+        message: "Server error while editing receipt.",
+      });
+    }
+  }
+);
+
 // GET
 // /receipts/bestsellers
 // Returns the top 5 best-selling books
