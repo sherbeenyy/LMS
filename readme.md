@@ -9,7 +9,7 @@ The Library Management System (LMS) API is a robust backend application designed
 - Sales receipts generation
 - Best-selling book analytics
 
-Built with Node.js, Express, and MongoDB, this API adopts modern backend development practices including JWT-based authentication, request validation via Joi, layered architecture for scalability, and full testing coverage using Jest and Supertest. It is ideal for libraries, bookshops, or any institution managing book-related transactions.
+Built with Node.js, Express, and MongoDB, this API adopts modern backend development practices including JWT-based authentication, request validation via express-validator, layered architecture for scalability, and full testing coverage using Jest and Supertest. It is ideal for libraries, bookshops, or any institution managing book-related transactions.
 
 ---
 
